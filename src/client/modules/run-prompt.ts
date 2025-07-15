@@ -89,7 +89,7 @@ export default async function RunMessage(message: string) {
                 console.log(error("No token received from server!"));
               }
             })
-            .catch((err: any) => {
+            .catch(() => {
               console.log(
                 error(
                   "There was an error connecting to " +
