@@ -14,6 +14,10 @@ export default async function InitializeDb(RelativePath: string) {
       driver: sqlite.Database,
     });
 
+    await db.exec(
+      "CREATE TABLE IF NOT EXISTS channels (channel_name TEXT, max_users INT, auth_level INT, channel_id TEXT, allowed_countries TEXT, whitelist BOOL, whitelisted_ips TEXT)"
+    );
+
     const allChannels: ({ channel_name: string } | undefined)[] = [];
     allChannels.push(await db.get("SELECT channel_name FROM channels"));
 
