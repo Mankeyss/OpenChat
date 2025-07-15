@@ -1,0 +1,15 @@
+[
+  { "name": "connect", "args": 1, "alias": "c" },
+  { "name": "disconnect", "args": 0, "alias": "dc" },
+  { "name": "help", "args": "0 || 1" },
+  { "name": "previous", "args": "1 || 2", "alias": "prev" },
+  { "name": "clear", "args": 0, "alias": "cls" },
+  { "name": "list", "args": 0, "alias": "channels" },
+  { "name": "goto", "args": 1 },
+  { "name": "exit", "args": 0 },
+  { "name": "leave", "args": 0 },
+  { "name": "dm", "args": 1 },
+  { "name": "users", "args": "0 || 1" },
+  { "name": "version", "args": 0 },
+  { "name": "setup", "args": 0 }
+]
