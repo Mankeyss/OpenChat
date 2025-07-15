@@ -18,3 +18,9 @@
    ```env
    PRIVATE_KEY="your key"
    ```
+5. Make OpenChat available through the command prompt
+   ```sh
+   npm run build
+   npm link
+   ```
+   Now try running ```oc``` and it should work
