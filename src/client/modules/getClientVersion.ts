@@ -7,13 +7,15 @@ export default async function GetClientVersion(RelativePath: string) {
   ).version;
 
   try {
-    const latestVersion: any = await axios.get(
-      "https://raw.githubusercontent.com/Mankeyss/OpenChat/refs/heads/main/src/client/latest-version.txt"
-    );
+    const latestVersion: any = (
+      await axios.get(
+        "https://raw.githubusercontent.com/Mankeyss/OpenChat/refs/heads/main/src/client/package.json"
+      )
+    ).data.version;
 
     return (
       currentVersion +
-      (latestVersion !== currentVersion ? ` (${latestVersion})` : "")
+      (latestVersion !== currentVersion ? ` (${latestVersion} available)` : "")
     );
   } catch {
     return currentVersion + " (couldn't fetch latest version!)";
