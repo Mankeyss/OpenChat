@@ -1,13 +1,17 @@
 import fs from "fs";
+import path from "path";
 
 export default function SaveClientConfig(
   data: {
     username: string;
     password?: string | undefined;
   },
-  RelativePath: string
+  relativePath: string
 ) {
   if (data.password?.length === 0) data.password = undefined;
 
-  fs.writeFileSync(RelativePath, JSON.stringify(data));
+  fs.writeFileSync(
+    path.join(__dirname, "../", relativePath),
+    JSON.stringify(data)
+  );
 }

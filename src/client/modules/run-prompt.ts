@@ -5,7 +5,7 @@ import Request, { instance } from "./request";
 import GetClientVersion from "./getClientVersion";
 import SaveClientConfig from "./saveClientConfig";
 import RetrieveUserData from "./retrieveUserData";
-import IsJson from "./IsJson";
+import IsJson from "./isJson";
 
 var clc = require("cli-color");
 
@@ -136,7 +136,6 @@ export default async function RunMessage(message: string) {
           break;
         }
         case "exit": {
-          console.clear();
           process.exit();
           break;
         }
@@ -176,7 +175,7 @@ export default async function RunMessage(message: string) {
           )
             SaveClientConfig(
               { username: username, password: password },
-              "./config/config.json"
+              "config/config.json"
             );
           else console.log(error("Password mismatch!"));
           break;
