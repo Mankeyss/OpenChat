@@ -5,6 +5,7 @@ import Request, { instance } from "./request";
 import GetClientVersion from "./getClientVersion";
 import SaveClientConfig from "./saveClientConfig";
 import RetrieveUserData from "./retrieveUserData";
+import IsJson from "./IsJson";
 
 var clc = require("cli-color");
 
@@ -270,16 +271,4 @@ const DisconnectWs = () => {
 
 function sleep(ms: number, callback: Function) {
   setTimeout(callback, ms);
-}
-
-function IsJson(text: string) {
-  return /^[\],:{}\s]*$/.test(
-    text
-      .replace(/\\["\\\/bfnrtu]/g, "@")
-      .replace(
-        /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,
-        "]"
-      )
-      .replace(/(?:^|:|,)(?:\s*\[)+/g, "")
-  );
 }
