@@ -9,9 +9,9 @@ export default async function GetClientVersion(RelativePath: string) {
   try {
     const latestVersion: any = (
       await axios.get(
-        "https://raw.githubusercontent.com/Mankeyss/OpenChat/refs/heads/main/src/client/latest-version.txt"
+        "https://raw.githubusercontent.com/Mankeyss/OpenChat/refs/heads/main/src/client/package.json"
       )
-    ).data;
+    ).data.version;
 
     return (
       currentVersion +
