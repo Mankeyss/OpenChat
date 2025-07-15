@@ -26,6 +26,17 @@ let ws: WebSocket | undefined = undefined;
 let authToken: string | undefined = undefined;
 
 export default async function RunMessage(message: string) {
+  function Question(promptText: string): Promise<string> {
+    return new Promise((resolve) => {
+      process.stdout.write(promptText);
+
+      rl.once("line", (line) => {
+        RunMessage(line);
+        resolve(line);
+      });
+    });
+  }
+
   const Loop = async () => {
     if (!message.startsWith(".")) {
       SendWS({ type: "text", message: message });
@@ -124,6 +135,8 @@ export default async function RunMessage(message: string) {
         case "list": {
           Request("GET", "/channels")
             .then((res: any) => {
+              readline.clearLine(process.stdout, 0);
+              readline.cursorTo(process.stdout, 0);
               console.log(res.data);
             })
             .catch(() => {
@@ -152,6 +165,7 @@ export default async function RunMessage(message: string) {
         }
         case "users": {
           SendWS({ type: "fetch", message: "users" });
+          throw "exit";
           break;
         }
         case "version": {
@@ -183,22 +197,15 @@ export default async function RunMessage(message: string) {
       }
     }
   };
-  await Loop();
+  try {
+    await Loop();
 
-  function Question(promptText: string): Promise<string> {
-    return new Promise((resolve) => {
-      process.stdout.write(promptText);
-
-      rl.once("line", (line) => {
-        RunMessage(line);
-        resolve(line);
-      });
+    sleep(50, () => {
+      Question(promptPrefix);
     });
-  }
-
-  sleep(50, () => {
+  } catch {
     Question(promptPrefix);
-  });
+  }
 }
 
 const CustomQuestion = (question: string) => {
@@ -238,6 +245,14 @@ const ConnectWS = (path: string, dm?: boolean) => {
           if (response.callback === "previous-messages") {
             response.message.forEach((message: any) => {
               console.log(notification(message.author + ">" + message.message));
+            });
+          } else if (response.callback === "users") {
+            let i = 1;
+            response.message.forEach((message: any) => {
+              console.log(
+                notification(i + ". " + JSON.parse(message).username)
+              );
+              i++;
             });
           }
         } else if (response.type === "error") {
