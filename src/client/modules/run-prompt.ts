@@ -7,6 +7,14 @@ import SaveClientConfig from "./saveClientConfig";
 import RetrieveUserData from "./retrieveUserData";
 import IsJson from "./isJson";
 
+import {
+  ClientResponse,
+  AuthResponse,
+  PreviousMessageCallback,
+} from "../../types/api";
+import { EventType } from "../../types/event";
+import { WsMessageType } from "../../types/websocket";
+
 var clc = require("cli-color");
 
 export const error = clc.red.bold;
@@ -45,7 +53,8 @@ export default async function RunMessage(message: string) {
       const command = message.slice(1).split(" ");
 
       const obj = commands.find(
-        (x: any) => x["name"] === command[0] || x["alias"] === command[0]
+        (x: { name: string; alias?: string }) =>
+          x["name"] === command[0] || x["alias"] === command[0]
       );
 
       if (!obj) {
@@ -81,7 +90,7 @@ export default async function RunMessage(message: string) {
             { username: RetrieveUserData("username") },
             true
           )
-            .then((res: any) => {
+            .then((res: ClientResponse<AuthResponse>) => {
               if ("token" in res.data) {
                 authToken = res.data.token;
                 console.log(success("Successfully connected to " + command[1]));
@@ -134,7 +143,7 @@ export default async function RunMessage(message: string) {
         }
         case "list": {
           Request("GET", "/channels")
-            .then((res: any) => {
+            .then((res: ClientResponse) => {
               readline.clearLine(process.stdout, 0);
               readline.cursorTo(process.stdout, 0);
               console.log(res.data);
@@ -229,12 +238,12 @@ const ConnectWS = (path: string, dm?: boolean) => {
       );
       promptPrefix = "#" + path + ">";
       sleep(200, () => {
-        SendWS({ type: "auth", message: authToken });
+        SendWS({ type: "auth", message: authToken as string });
       });
       return;
     });
 
-    ws.addEventListener("message", (event: any) => {
+    ws.addEventListener("message", (event: EventType) => {
       readline.clearLine(process.stdout, 0);
       readline.cursorTo(process.stdout, 0);
       if (!IsJson(event.data)) {
@@ -243,12 +252,12 @@ const ConnectWS = (path: string, dm?: boolean) => {
         const response = JSON.parse(event.data);
         if (response.callback) {
           if (response.callback === "previous-messages") {
-            response.message.forEach((message: any) => {
+            response.message.forEach((message: PreviousMessageCallback) => {
               console.log(notification(message.author + ">" + message.message));
             });
           } else if (response.callback === "users") {
             let i = 1;
-            response.message.forEach((message: any) => {
+            response.message.forEach((message: string) => {
               console.log(
                 notification(i + ". " + JSON.parse(message).username)
               );
@@ -274,7 +283,7 @@ const ConnectWS = (path: string, dm?: boolean) => {
   }
 };
 
-const SendWS = (message: any) => {
+const SendWS = (message: WsMessageType) => {
   if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(message));
   else if (!ws) console.log(error("You're not in a channel!"));
 };
