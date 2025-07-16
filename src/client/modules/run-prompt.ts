@@ -1,4 +1,4 @@
-const commands = require("./commands.json");
+import commands from "./commands.json";
 
 import * as readline from "readline";
 import Request, { instance } from "./request";
@@ -64,7 +64,7 @@ export default async function RunMessage(message: string) {
       const allowedAmountOfArgs = args.toString().split(" || ");
 
       if (!allowedAmountOfArgs.includes((command.length - 1).toString())) {
-        if (command.length - 1 < allowedAmountOfArgs[0])
+        if (command.length - 1 < Number(allowedAmountOfArgs[0]))
           console.log(error("Missing arguments!"));
         else console.log(error("Too many arguments!"));
 
@@ -72,7 +72,7 @@ export default async function RunMessage(message: string) {
           error(
             "Usage: " +
               command[0] +
-              " [argument]".repeat(allowedAmountOfArgs[0])
+              " [argument]".repeat(Number(allowedAmountOfArgs[0]))
           )
         );
         return;
@@ -117,7 +117,7 @@ export default async function RunMessage(message: string) {
         }
         case "help": {
           if (command.length === 1) {
-            commands.map((command: { name: string; alias: string }) => {
+            commands.map((command) => {
               console.log(
                 command.alias === undefined
                   ? { name: command.name }
@@ -126,8 +126,7 @@ export default async function RunMessage(message: string) {
             });
           } else if (command.length === 2) {
             const foundCommand = commands.find(
-              (x: { name: string; alias: string }) =>
-                x.name === command[1] || x.alias === command[1]
+              (x) => x.name === command[1] || x?.alias === command[1]
             );
             if (foundCommand === undefined) {
               console.log(error("There is no command " + command[1] + "!"));
