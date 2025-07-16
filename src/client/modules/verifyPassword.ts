@@ -7,8 +7,17 @@ import { prompt } from "../main";
 async function VerifyPassword() {
   try {
     const loop = async function () {
+      const folderPath = path.join(__dirname, "../", "config");
+      const localPath = path.join(folderPath, "config.json");
+
+      if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath);
+      if (!fs.existsSync(localPath)) {
+        fs.writeFileSync(localPath, '{"username":"unnamed"}', {
+          encoding: "utf-8",
+        });
+      }
       const savedPassword = JSON.parse(
-        fs.readFileSync(path.join(__dirname, "../", "config/config.json"), {
+        fs.readFileSync(localPath, {
           encoding: "utf-8",
         })
       )?.password;

@@ -1,15 +1,60 @@
 [
-  { "name": "connect", "args": 1, "alias": "c" },
-  { "name": "disconnect", "args": 0, "alias": "dc" },
-  { "name": "help", "args": "0 || 1" },
-  { "name": "previous", "args": "1 || 2", "alias": "prev" },
-  { "name": "clear", "args": 0, "alias": "cls" },
-  { "name": "list", "args": 0, "alias": "channels" },
-  { "name": "goto", "args": 1 },
-  { "name": "exit", "args": 0 },
-  { "name": "leave", "args": 0 },
-  { "name": "dm", "args": 1 },
-  { "name": "users", "args": "0 || 1" },
-  { "name": "version", "args": 0 },
-  { "name": "setup", "args": 0 }
+  {
+    "name": "connect",
+    "args": 1,
+    "alias": "c",
+    "description": "connect to any active server"
+  },
+  {
+    "name": "disconnect",
+    "args": 0,
+    "alias": "dc",
+    "description": "disconnect from connected server"
+  },
+  {
+    "name": "help",
+    "args": "0 || 1",
+    "description": "return a list of available commands and their descriptions"
+  },
+  {
+    "name": "previous",
+    "args": "1 || 2",
+    "alias": "prev",
+    "description": "fetch older messages from whitin a channel"
+  },
+  {
+    "name": "clear",
+    "args": 0,
+    "alias": "cls",
+    "description": "clear the console"
+  },
+  {
+    "name": "list",
+    "args": 0,
+    "alias": "channels",
+    "description": "shows a list of channels within the server (requires you to be connected to a server)"
+  },
+  {
+    "name": "goto",
+    "args": 1,
+    "description": "jump between channels in a server"
+  },
+  { "name": "exit", "args": 0, "description": "quit OpenChat" },
+  { "name": "leave", "args": 0, "description": "leave the current channel" },
+  { "name": "dm", "args": 1, "description": "direct-message a user" },
+  {
+    "name": "users",
+    "args": "0 || 1",
+    "description": "retrieve all users in a channel"
+  },
+  {
+    "name": "version",
+    "args": 0,
+    "description": "fetch version as well as the latest version"
+  },
+  {
+    "name": "setup",
+    "args": 0,
+    "description": "set up a username (and password)"
+  }
 ]

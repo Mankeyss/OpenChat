@@ -1,4 +1,4 @@
-const commands = require("./commands.json");
+import commands from "./commands.json";
 
 import * as readline from "readline";
 import Request, { instance } from "./request";
@@ -64,7 +64,7 @@ export default async function RunMessage(message: string) {
       const allowedAmountOfArgs = args.toString().split(" || ");
 
       if (!allowedAmountOfArgs.includes((command.length - 1).toString())) {
-        if (command.length - 1 < allowedAmountOfArgs[0])
+        if (command.length - 1 < Number(allowedAmountOfArgs[0]))
           console.log(error("Missing arguments!"));
         else console.log(error("Too many arguments!"));
 
@@ -72,7 +72,7 @@ export default async function RunMessage(message: string) {
           error(
             "Usage: " +
               command[0] +
-              " [argument]".repeat(allowedAmountOfArgs[0])
+              " [argument]".repeat(Number(allowedAmountOfArgs[0]))
           )
         );
         return;
@@ -116,13 +116,32 @@ export default async function RunMessage(message: string) {
           break;
         }
         case "help": {
-          commands.map((command: { name: string; alias: string }) => {
-            console.log(
-              command.alias === undefined
-                ? { name: command.name }
-                : { name: command.name, alias: command.alias }
+          if (command.length === 1) {
+            commands.map((command) => {
+              console.log(
+                command.alias === undefined
+                  ? { name: command.name }
+                  : { name: command.name, alias: command.alias }
+              );
+            });
+          } else if (command.length === 2) {
+            const foundCommand = commands.find(
+              (x) => x.name === command[1] || x?.alias === command[1]
             );
-          });
+            if (foundCommand === undefined) {
+              console.log(error("There is no command " + command[1] + "!"));
+              break;
+            }
+            if (foundCommand.description === undefined) {
+              console.log(
+                error(
+                  "Could not find a description for command " + command[1] + "!"
+                )
+              );
+              break;
+            }
+            console.log(notification(foundCommand.description));
+          }
           break;
         }
         case "previous": {
