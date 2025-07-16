@@ -133,6 +133,14 @@ export default async function RunMessage(message: string) {
               console.log(error("There is no command " + command[1] + "!"));
               break;
             }
+            if (foundCommand.description === undefined) {
+              console.log(
+                error(
+                  "Could not find a description for command " + command[1] + "!"
+                )
+              );
+              break;
+            }
             console.log(notification(foundCommand.description));
           }
           break;
