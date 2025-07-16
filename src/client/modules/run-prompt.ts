@@ -116,13 +116,25 @@ export default async function RunMessage(message: string) {
           break;
         }
         case "help": {
-          commands.map((command: { name: string; alias: string }) => {
-            console.log(
-              command.alias === undefined
-                ? { name: command.name }
-                : { name: command.name, alias: command.alias }
+          if (command.length === 1) {
+            commands.map((command: { name: string; alias: string }) => {
+              console.log(
+                command.alias === undefined
+                  ? { name: command.name }
+                  : { name: command.name, alias: command.alias }
+              );
+            });
+          } else if (command.length === 2) {
+            const foundCommand = commands.find(
+              (x: { name: string; alias: string }) =>
+                x.name === command[1] || x.alias === command[1]
             );
-          });
+            if (foundCommand === undefined) {
+              console.log(error("There is no command " + command[1] + "!"));
+              break;
+            }
+            console.log(notification(foundCommand.description));
+          }
           break;
         }
         case "previous": {
