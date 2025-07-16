@@ -20,7 +20,7 @@ export const error = clc.red.bold;
 export const success = clc.green;
 export const notification = clc.blue;
 
-export let promptPrefix = new prefix("");
+export let promptPrefix = new prefix(">");
 
 export const rl = readline.createInterface({
   input: process.stdin,
@@ -194,7 +194,10 @@ export default async function RunMessage(message: string) {
               ((await CustomQuestion("Confirm Password: ")) as string)
           )
             SaveClientConfig(
-              { username: username, password: await Encrypt(password) },
+              {
+                username: username,
+                password: password.length > 0 ? await Encrypt(password) : "",
+              },
               "config/config.json"
             );
           else console.log(error("Password mismatch!"));
@@ -214,7 +217,7 @@ export default async function RunMessage(message: string) {
   }
 }
 
-const CustomQuestion = (question: string) => {
+export const CustomQuestion = (question: string) => {
   return new Promise((resolve) => {
     rl.question(question, (answer: string) => {
       resolve(answer);
