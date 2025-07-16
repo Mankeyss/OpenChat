@@ -10,13 +10,7 @@ import { ConnectWS, DisconnectWs, SendWS, Sleep } from "./websocketHelper";
 
 import prefix from "./promptPrefix";
 
-import {
-  ClientResponse,
-  AuthResponse,
-  PreviousMessageCallback,
-} from "../../types/api";
-import { EventType } from "../../types/event";
-import { WsMessageType } from "../../types/websocket";
+import { ClientResponse, AuthResponse } from "../../types/api";
 
 var clc = require("cli-color");
 
