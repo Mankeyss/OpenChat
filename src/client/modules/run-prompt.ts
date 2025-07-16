@@ -12,6 +12,8 @@ import prefix from "./promptPrefix";
 
 import { ClientResponse, AuthResponse } from "../../types/api";
 
+import Encrypt from "./encryptPassword";
+
 var clc = require("cli-color");
 
 export const error = clc.red.bold;
@@ -192,7 +194,7 @@ export default async function RunMessage(message: string) {
               ((await CustomQuestion("Confirm Password: ")) as string)
           )
             SaveClientConfig(
-              { username: username, password: password },
+              { username: username, password: await Encrypt(password) },
               "config/config.json"
             );
           else console.log(error("Password mismatch!"));
