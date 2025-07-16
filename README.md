@@ -12,6 +12,7 @@
    ```
 3. Copy `.env.example` in `src/server` 
    ```sh
+   cd src/server
    cp -a .env.example .env
    ```
 4. Replace `PRIVATE_KEY` with your own private RSA key
@@ -20,6 +21,7 @@
    ```
 5. Make OpenChat available through the command prompt
    ```sh
+   cd ../client
    npm run build
    npm link
    ```
