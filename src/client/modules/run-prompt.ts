@@ -5,7 +5,12 @@ import Request, { instance } from "./request";
 import GetClientVersion from "./getClientVersion";
 import SaveClientConfig from "./saveClientConfig";
 import RetrieveUserData from "./retrieveUserData";
-import IsJson from "./isJson";
+
+import { ConnectWS, DisconnectWs, SendWS, Sleep } from "./websocketHelper";
+
+import prefix from "./promptPrefix";
+
+import { ClientResponse, AuthResponse } from "../../types/api";
 
 var clc = require("cli-color");
 
@@ -13,7 +18,7 @@ export const error = clc.red.bold;
 export const success = clc.green;
 export const notification = clc.blue;
 
-let promptPrefix = ">";
+export let promptPrefix = new prefix("");
 
 export const rl = readline.createInterface({
   input: process.stdin,
@@ -21,9 +26,7 @@ export const rl = readline.createInterface({
   terminal: false,
 });
 
-let ws: WebSocket | undefined = undefined;
-
-let authToken: string | undefined = undefined;
+export let authToken: string | undefined = undefined;
 
 export default async function RunMessage(message: string) {
   function Question(promptText: string): Promise<string> {
@@ -45,7 +48,8 @@ export default async function RunMessage(message: string) {
       const command = message.slice(1).split(" ");
 
       const obj = commands.find(
-        (x: any) => x["name"] === command[0] || x["alias"] === command[0]
+        (x: { name: string; alias?: string }) =>
+          x["name"] === command[0] || x["alias"] === command[0]
       );
 
       if (!obj) {
@@ -81,7 +85,7 @@ export default async function RunMessage(message: string) {
             { username: RetrieveUserData("username") },
             true
           )
-            .then((res: any) => {
+            .then((res: ClientResponse<AuthResponse>) => {
               if ("token" in res.data) {
                 authToken = res.data.token;
                 console.log(success("Successfully connected to " + command[1]));
@@ -89,7 +93,7 @@ export default async function RunMessage(message: string) {
                 console.log(error("No token received from server!"));
               }
             })
-            .catch((err: any) => {
+            .catch(() => {
               console.log(
                 error(
                   "There was an error connecting to " +
@@ -106,7 +110,7 @@ export default async function RunMessage(message: string) {
           );
           DisconnectWs();
           instance.defaults.baseURL = undefined;
-          promptPrefix = ">";
+          promptPrefix.set(">");
           break;
         }
         case "help": {
@@ -134,7 +138,7 @@ export default async function RunMessage(message: string) {
         }
         case "list": {
           Request("GET", "/channels")
-            .then((res: any) => {
+            .then((res: ClientResponse) => {
               readline.clearLine(process.stdout, 0);
               readline.cursorTo(process.stdout, 0);
               console.log(res.data);
@@ -154,13 +158,13 @@ export default async function RunMessage(message: string) {
         }
         case "leave": {
           DisconnectWs();
-          promptPrefix = ">";
+          promptPrefix.set(">");
           break;
         }
         case "dm": {
           DisconnectWs();
           ConnectWS(command[1], true);
-          promptPrefix = command[1];
+          promptPrefix.set(command[1]);
           break;
         }
         case "users": {
@@ -200,11 +204,11 @@ export default async function RunMessage(message: string) {
   try {
     await Loop();
 
-    sleep(50, () => {
-      Question(promptPrefix);
+    Sleep(50, () => {
+      Question(promptPrefix.get());
     });
   } catch {
-    Question(promptPrefix);
+    Question(promptPrefix.get());
   }
 }
 
@@ -215,74 +219,3 @@ const CustomQuestion = (question: string) => {
     });
   });
 };
-
-const ConnectWS = (path: string, dm?: boolean) => {
-  DisconnectWs();
-  try {
-    const url = new URL(instance.defaults.baseURL);
-    ws = new WebSocket(
-      "ws://" + url.host + (dm ? "/message/" : "/channel/") + path
-    );
-    ws.addEventListener("open", () => {
-      console.log(
-        success("Connected to " + "ws://" + url.host + "/channel/" + path)
-      );
-      promptPrefix = "#" + path + ">";
-      sleep(200, () => {
-        SendWS({ type: "auth", message: authToken });
-      });
-      return;
-    });
-
-    ws.addEventListener("message", (event: any) => {
-      readline.clearLine(process.stdout, 0);
-      readline.cursorTo(process.stdout, 0);
-      if (!IsJson(event.data)) {
-        console.log(event.data);
-      } else {
-        const response = JSON.parse(event.data);
-        if (response.callback) {
-          if (response.callback === "previous-messages") {
-            response.message.forEach((message: any) => {
-              console.log(notification(message.author + ">" + message.message));
-            });
-          } else if (response.callback === "users") {
-            let i = 1;
-            response.message.forEach((message: any) => {
-              console.log(
-                notification(i + ". " + JSON.parse(message).username)
-              );
-              i++;
-            });
-          }
-        } else if (response.type === "error") {
-          console.log(error(response.message));
-        }
-      }
-      process.stdout.write(promptPrefix);
-    });
-
-    ws.addEventListener("close", () => {
-      promptPrefix = ">";
-    });
-  } catch (e: any) {
-    if (e.code === "ERR_INVALID_URL") {
-      console.log(error("Invalid URL address!"));
-    } else {
-      console.log(error("Error with WebSocket!"));
-    }
-  }
-};
-
-const SendWS = (message: any) => {
-  if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(message));
-  else if (!ws) console.log(error("You're not in a channel!"));
-};
-
-const DisconnectWs = () => {
-  if (ws) ws.close();
-};
-
-function sleep(ms: number, callback: Function) {
-  setTimeout(callback, ms);
-}

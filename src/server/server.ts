@@ -11,9 +11,6 @@ const privateKey = process.env.PRIVATE_KEY;
 
 const jwt = require("jsonwebtoken");
 
-const sqlite = require("sqlite3");
-import { open } from "sqlite";
-
 import InitializeDb from "./modules/initializeDb";
 
 app.use(express.json());
@@ -24,20 +21,20 @@ app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
 
-const UseSql = async function (
-  method: "all" | "get" | "each",
-  code: string,
-  placeholders?: any[]
-) {
-  const db = await open({
-    filename: "./database.db",
-    driver: sqlite.Database,
-  });
+import {
+  ServerResponse,
+  ServerRequest,
+  UserData,
+  WebSocketRequest,
+  WebSocket,
+  PreviousMessageCallback,
+  ClientResponse,
+  CountryFetch,
+} from "../types/api";
 
-  return await db[method](code, placeholders);
-};
+import UseSql from "./modules/useSql";
 
-app.get("/", (req: any, res: any) => {
+app.get("/", (req: ServerRequest<UserData>, res: ServerResponse) => {
   const { username } = req.query || {};
   if (!username) {
     res.sendStatus(400);
@@ -52,7 +49,7 @@ app.get("/", (req: any, res: any) => {
   res.status(200).send({ token: token });
 });
 
-app.get("/channels", async (req: any, res: any) => {
+app.get("/channels", async (req: ServerRequest, res: ServerResponse) => {
   try {
     const response = await UseSql(
       "all",
@@ -71,14 +68,11 @@ app.get("/channels", async (req: any, res: any) => {
 });
 
 const channels = new Map<string, Set<WebSocket>>();
-const messages = new Map<
-  string,
-  { author: string | undefined; message: any }[]
->();
+const messages = new Map<string, Array<PreviousMessageCallback>>();
 
 const usernames = new Map<WebSocket, string>();
 
-app.ws("/channel/:id", async (ws: any, req: any, next: any) => {
+app.ws("/channel/:id", async (ws: WebSocket, req: WebSocketRequest) => {
   const { id } = req.params || {};
   if (!id) ws.close();
 
@@ -97,13 +91,13 @@ app.ws("/channel/:id", async (ws: any, req: any, next: any) => {
   const ip = req.socket.remoteAddress;
   await axios
     .get("https://reallyfreegeoip.org/json/" + ip)
-    .then((response: any) =>
+    .then((response: ClientResponse<CountryFetch>) =>
       console.log(
         "Established connection with " + ip + ` (${response.data.country_name})`
       )
     );
 
-  ws.on("message", (msg: any) => {
+  ws.on("message", (msg: string) => {
     const data = JSON.parse(msg);
 
     if (data.type === "text") {
