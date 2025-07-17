@@ -41,7 +41,7 @@
   },
   { "name": "exit", "args": 0, "description": "quit OpenChat" },
   { "name": "leave", "args": 0, "description": "leave the current channel" },
-  { "name": "dm", "args": 1, "description": "direct-message a user" },
+  { "name": "dm", "args": "1 || 2", "description": "direct-message a user" },
   {
     "name": "users",
     "args": "0 || 1",

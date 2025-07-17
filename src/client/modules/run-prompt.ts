@@ -13,6 +13,7 @@ import prefix from "./promptPrefix";
 import { ClientResponse, AuthResponse } from "../../types/api";
 
 import Encrypt from "./encryptPassword";
+import { DM, AddToDMHistory, SetDM, DMHistory } from "./dm";
 
 var clc = require("cli-color");
 
@@ -44,7 +45,11 @@ export default async function RunMessage(message: string) {
 
   const Loop = async () => {
     if (!message.startsWith(".")) {
-      SendWS({ type: "text", message: message });
+      if (!DM) SendWS({ type: "text", message: message });
+      else {
+        SendWS({ type: "dm", user: DM, message: message });
+        throw "exit";
+      }
       return;
     } else {
       const command = message.slice(1).split(" ");
@@ -110,6 +115,7 @@ export default async function RunMessage(message: string) {
           console.log(
             notification(`Disconnected from ${instance.defaults.baseURL}`)
           );
+          SetDM(null);
           DisconnectWs();
           instance.defaults.baseURL = undefined;
           promptPrefix.set(">");
@@ -170,6 +176,7 @@ export default async function RunMessage(message: string) {
           break;
         }
         case "goto": {
+          SetDM(null);
           ConnectWS(command[1]);
           break;
         }
@@ -178,14 +185,19 @@ export default async function RunMessage(message: string) {
           break;
         }
         case "leave": {
+          SetDM(null);
           DisconnectWs();
           promptPrefix.set(">");
           break;
         }
         case "dm": {
-          DisconnectWs();
-          ConnectWS(command[1], true);
-          promptPrefix.set(command[1]);
+          SendWS({ type: "dm", user: command[1], message: command[2] });
+          if (DMHistory.has(command[1])) {
+            DMHistory.get(command[1])?.forEach((message: string) =>
+              console.log(message)
+            );
+          }
+          throw "exit";
           break;
         }
         case "users": {
