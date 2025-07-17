@@ -83,7 +83,12 @@ app.ws("/channel/:id", async (ws: WebSocket, req: WebSocketRequest) => {
   );
 
   if (response === undefined) {
-    ws.send("Channel " + id + " does not exist!");
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: "Channel " + id + " does not exist!",
+      })
+    );
     ws.close();
     return;
   }
@@ -192,6 +197,40 @@ app.ws("/channel/:id", async (ws: WebSocket, req: WebSocketRequest) => {
           })
         );
       }
+    } else if (data.type === "dm") {
+      if (!data.user)
+        return ws.send(
+          JSON.stringify({ type: "error", message: "Missing user parameter!" })
+        );
+
+      const getUser = () => {
+        for (const [key, value] of usernames) {
+          if (value === data.user) return key;
+        }
+      };
+
+      const user = getUser();
+
+      if (!user)
+        return ws.send(
+          JSON.stringify({ type: "error", message: "Couldn't find user!" })
+        );
+
+      if (data.user === usernames.get(ws))
+        return ws.send(
+          JSON.stringify({ type: "error", message: "Unable to DM yourself!" })
+        );
+
+      if (data.message) {
+        user.send(
+          JSON.stringify({
+            type: "dm",
+            message: data.message,
+            sender: usernames.get(ws),
+          })
+        );
+      }
+      ws.send(JSON.stringify({ type: "dm-sent", user: data.user }));
     }
   });
 

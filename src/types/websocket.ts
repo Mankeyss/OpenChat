@@ -3,4 +3,5 @@ export type WsMessageType = {
   message: string;
   min?: string | number;
   max?: string | number;
+  user?: string;
 };

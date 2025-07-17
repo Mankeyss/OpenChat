@@ -5,6 +5,9 @@ import {
   promptPrefix,
   authToken,
 } from "./run-prompt";
+
+import { SetDM, DM, AddToDMHistory } from "./dm";
+
 import IsJson from "./isJson";
 
 import * as rl from "readline";
@@ -39,7 +42,7 @@ export const ConnectWS = (path: string, dm?: boolean) => {
       rl.clearLine(process.stdout, 0);
       rl.cursorTo(process.stdout, 0);
       if (!IsJson(event.data)) {
-        console.log(event.data);
+        if (DM === null) console.log(event.data);
       } else {
         const response = JSON.parse(event.data);
         if (response.callback) {
@@ -60,6 +63,19 @@ export const ConnectWS = (path: string, dm?: boolean) => {
           }
         } else if (response.type === "error") {
           console.log(error(response.message));
+        } else if (response.type === "dm") {
+          const message = response.sender + ">" + response.message;
+          if (DM !== response.sender) {
+            console.log(
+              notification("You have a message from " + response.sender)
+            );
+          } else {
+            console.log(message);
+          }
+          AddToDMHistory(response.sender, message);
+        } else if (response.type === "dm-sent") {
+          SetDM(response?.user);
+          promptPrefix.set("dm#" + response?.user + ">");
         }
       }
       process.stdout.write(promptPrefix.get());
