@@ -17,6 +17,7 @@ import { instance } from "./request";
 import { PreviousMessageCallback } from "../../types/api";
 import { EventType } from "../../types/event";
 import { WsMessageType } from "../../types/websocket";
+import { redrawLine } from "./readInput";
 
 let ws: WebSocket | undefined = undefined;
 
@@ -78,7 +79,7 @@ export const ConnectWS = (path: string, dm?: boolean) => {
           promptPrefix.set("dm#" + response?.user + ">");
         }
       }
-      process.stdout.write(promptPrefix.get());
+      redrawLine();
     });
 
     ws.addEventListener("close", () => {

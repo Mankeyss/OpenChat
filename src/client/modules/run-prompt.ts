@@ -14,6 +14,7 @@ import { ClientResponse, AuthResponse } from "../../types/api";
 
 import Encrypt from "./encryptPassword";
 import { DM, AddToDMHistory, SetDM, DMHistory } from "./dm";
+import { buffer } from "./readInput";
 
 var clc = require("cli-color");
 
@@ -37,8 +38,9 @@ export default async function RunMessage(message: string) {
       process.stdout.write(promptText);
 
       rl.once("line", (line) => {
-        RunMessage(line);
-        resolve(line);
+        process.stdout.write("\n");
+        RunMessage(buffer);
+        resolve(buffer);
       });
     });
   }
