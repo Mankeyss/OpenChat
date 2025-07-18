@@ -2,11 +2,15 @@
 const express = require("express");
 const app = express();
 const expressWS = require("express-ws")(app);
-require("dotenv").config();
+require("dotenv").config({ path: __dirname + "/.env" });
 
 const axios = require("axios");
 
 const privateKey = process.env.PRIVATE_KEY;
+if (!privateKey)
+  throw new Error(
+    "No private key provided in .env, make sure there exists an env file and provide the key!"
+  );
 
 const jwt = require("jsonwebtoken");
 

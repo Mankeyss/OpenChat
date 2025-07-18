@@ -33,7 +33,7 @@ export default async function InitializeDb() {
     const data = JSON.parse(fs.readFileSync(localPath, { encoding: "utf-8" }));
 
     const db = await open({
-      filename: "./database.db",
+      filename: path.join(__dirname, "../", "database.db"),
       driver: sqlite.Database,
     });
 
