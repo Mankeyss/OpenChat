@@ -3,11 +3,34 @@ const fs = require("fs");
 const sqlite = require("sqlite3");
 import { open } from "sqlite";
 
-export default async function InitializeDb(RelativePath: string) {
+import path from "path";
+
+export default async function InitializeDb() {
   try {
-    const data = JSON.parse(
-      fs.readFileSync(RelativePath, { encoding: "utf-8" })
-    );
+    const folderPath = path.join(__dirname, "../", "config");
+    const localPath = path.join(folderPath, "config.json");
+
+    if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath);
+    if (!fs.existsSync(localPath)) {
+      fs.writeFileSync(
+        localPath,
+        `[
+  {
+    "channel_name": "test",
+    "max_users": null,
+    "auth_level": 0,
+    "allowed_countries": [],
+    "whitelist": false,
+    "whitelistedIPs": []
+      }
+    ]`,
+        {
+          encoding: "utf-8",
+        }
+      );
+    }
+
+    const data = JSON.parse(fs.readFileSync(localPath, { encoding: "utf-8" }));
 
     const db = await open({
       filename: "./database.db",

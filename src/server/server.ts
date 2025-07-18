@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const express = require("express");
 const app = express();
 const expressWS = require("express-ws")(app);
@@ -23,7 +24,7 @@ export const notification = clc.blue;
 
 import GetServerVersion from "./modules/getServerVersion";
 
-InitializeDb("./config/config.json");
+InitializeDb();
 
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
@@ -31,8 +32,7 @@ app.listen(port, () => {
 
 const LogServerVersion = async () => {
   console.log(
-    "Server running version " +
-      notification(await GetServerVersion("./package.json"))
+    "Server running version " + notification(await GetServerVersion())
   );
 };
 
@@ -147,7 +147,8 @@ app.ws("/channel/:id", async (ws: WebSocket, req: WebSocketRequest) => {
 
       if (
         !allowed_countries.includes(country.toLowerCase()) &&
-        !(allowed_countries.includes("local") && country === "")
+        !(allowed_countries.includes("local") && country === "") &&
+        allowed_countries.length > 0
       ) {
         ws.send(
           JSON.stringify({

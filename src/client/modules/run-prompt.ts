@@ -13,7 +13,7 @@ import prefix from "./promptPrefix";
 import { ClientResponse, AuthResponse } from "../../types/api";
 
 import Encrypt from "./encryptPassword";
-import { DM, AddToDMHistory, SetDM, DMHistory } from "./dm";
+import { DM, SetDM, DMHistory } from "./dm";
 import { buffer } from "./readInput";
 
 var clc = require("cli-color");
@@ -37,7 +37,7 @@ export default async function RunMessage(message: string) {
     return new Promise((resolve) => {
       process.stdout.write(promptText);
 
-      rl.once("line", (line) => {
+      rl.once("line", () => {
         process.stdout.write("\n");
         RunMessage(buffer);
         resolve(buffer);
