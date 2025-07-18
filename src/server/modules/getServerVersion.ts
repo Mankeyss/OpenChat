@@ -14,7 +14,7 @@ export default async function GetClientVersion() {
   try {
     const latestVersion: VersionResponse = (
       await axios.get(
-        "https://raw.githubusercontent.com/Mankeyss/OpenChat/refs/heads/main/src/client/package.json"
+        "https://raw.githubusercontent.com/Mankeyss/OpenChat/refs/heads/main/src/server/package.json"
       )
     ).data.version;
 
