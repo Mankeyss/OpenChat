@@ -4,9 +4,9 @@ import { VersionResponse } from "../../types/api";
 
 import path from "path";
 
-export default async function GetServerVersion() {
+export default async function GetClientVersion() {
   const currentVersion = JSON.parse(
-    fs.readFileSync(path.join(__dirname, "../", "../", "../", "package.json"), {
+    fs.readFileSync(path.join(__dirname, "../", "package.json"), {
       encoding: "utf-8",
     })
   ).version;
@@ -14,7 +14,7 @@ export default async function GetServerVersion() {
   try {
     const latestVersion: VersionResponse = (
       await axios.get(
-        "https://raw.githubusercontent.com/Mankeyss/OpenChat/refs/heads/main/src/server/package.json"
+        "https://raw.githubusercontent.com/Mankeyss/OpenChat/refs/heads/main/src/client/package.json"
       )
     ).data.version;
 

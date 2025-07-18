@@ -6,8 +6,6 @@ require("dotenv").config();
 
 const axios = require("axios");
 
-const port = process.env.PORT;
-
 const privateKey = process.env.PRIVATE_KEY;
 
 const jwt = require("jsonwebtoken");
@@ -25,6 +23,8 @@ export const notification = clc.blue;
 import GetServerVersion from "./modules/getServerVersion";
 
 InitializeDb();
+
+const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
