@@ -30,3 +30,5 @@ export type PreviousMessageCallback = {
   author: string | undefined;
   message: string;
 };
+
+export type VersionResponse = { data: { version: string } };

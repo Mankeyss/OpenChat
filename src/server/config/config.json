@@ -11,7 +11,7 @@
     "channel_name": "test2",
     "max_users": null,
     "auth_level": 0,
-    "allowed_countries": ["Sweden"],
+    "allowed_countries": ["Sweden", "Local"],
     "whitelist": false,
     "whitelistedIPs": []
   }
