@@ -253,6 +253,7 @@ export default async function RunMessage(message: string) {
 export const CustomQuestion = (question: string) => {
   return new Promise((resolve) => {
     rl.question(question, (answer: string) => {
+      console.log("\n");
       resolve(answer);
     });
   });
