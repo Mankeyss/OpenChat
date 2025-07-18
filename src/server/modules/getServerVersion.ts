@@ -2,9 +2,13 @@ import axios from "axios";
 import fs from "fs";
 import { VersionResponse } from "../../types/api";
 
-export default async function GetServerVersion(RelativePath: string) {
+import path from "path";
+
+export default async function GetServerVersion() {
   const currentVersion = JSON.parse(
-    fs.readFileSync(RelativePath, { encoding: "utf-8" })
+    fs.readFileSync(path.join(__dirname, "../", "../", "../", "package.json"), {
+      encoding: "utf-8",
+    })
   ).version;
 
   try {
