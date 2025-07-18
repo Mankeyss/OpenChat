@@ -2,7 +2,7 @@ import axios from "axios";
 import fs from "fs";
 import { VersionResponse } from "../../types/api";
 
-export default async function GetClientVersion(RelativePath: string) {
+export default async function GetServerVersion(RelativePath: string) {
   const currentVersion = JSON.parse(
     fs.readFileSync(RelativePath, { encoding: "utf-8" })
   ).version;
@@ -10,7 +10,7 @@ export default async function GetClientVersion(RelativePath: string) {
   try {
     const latestVersion: VersionResponse = (
       await axios.get(
-        "https://raw.githubusercontent.com/Mankeyss/OpenChat/refs/heads/main/src/client/package.json"
+        "https://raw.githubusercontent.com/Mankeyss/OpenChat/refs/heads/main/src/server/package.json"
       )
     ).data.version;
 

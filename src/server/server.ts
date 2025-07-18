@@ -15,11 +15,28 @@ import InitializeDb from "./modules/initializeDb";
 
 app.use(express.json());
 
+var clc = require("cli-color");
+
+export const error = clc.red.bold;
+export const success = clc.green;
+export const notification = clc.blue;
+
+import GetServerVersion from "./modules/getServerVersion";
+
 InitializeDb("./config/config.json");
 
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
+
+const LogServerVersion = async () => {
+  console.log(
+    "Server running version " +
+      notification(await GetServerVersion("./package.json"))
+  );
+};
+
+LogServerVersion();
 
 import {
   ServerResponse,
@@ -32,7 +49,7 @@ import {
   CountryFetch,
 } from "../types/api";
 
-import UseSql from "./modules/useSql";
+import UseSql, { getChannelProperty } from "./modules/useSql";
 
 app.get("/", (req: ServerRequest<UserData>, res: ServerResponse) => {
   const { username } = req.query || {};
@@ -94,13 +111,65 @@ app.ws("/channel/:id", async (ws: WebSocket, req: WebSocketRequest) => {
   }
 
   const ip = req.socket.remoteAddress;
+  try {
+    if (Number(await getChannelProperty(id, "whitelist")) === 1) {
+      const whitelisted_ips = (
+        await getChannelProperty(id, "whitelisted_ips")
+      ).split(",");
+
+      if (!whitelisted_ips.includes(ip)) {
+        ws.send(
+          JSON.stringify({
+            type: "error",
+            message: "Channel does not accept users from this IP!",
+          })
+        );
+        ws.close();
+        console.log(
+          error(
+            "Denied user because they have an unknown IP (you can update this in config.json)"
+          )
+        );
+      }
+    }
+  } catch {}
+
   await axios
     .get("https://reallyfreegeoip.org/json/" + ip)
-    .then((response: ClientResponse<CountryFetch>) =>
-      console.log(
-        "Established connection with " + ip + ` (${response.data.country_name})`
+    .then(async (response: ClientResponse<CountryFetch>) => {
+      const country = response.data.country_name;
+      //If channel does not allow users from user country, give error
+      const allowed_countries = (
+        await getChannelProperty(id, "allowed_countries")
       )
-    );
+        .toLowerCase()
+        .split(",");
+
+      if (
+        !allowed_countries.includes(country.toLowerCase()) &&
+        !(allowed_countries.includes("local") && country === "")
+      ) {
+        ws.send(
+          JSON.stringify({
+            type: "error",
+            message:
+              "Channel does not accept users from " +
+              (country === "" ? "Local" : country) +
+              "!",
+          })
+        );
+        ws.close();
+        console.log(
+          error(
+            "Denied user because they are from foreign country (you can update this in config.json)"
+          )
+        );
+      }
+      if (ws && ws.readyState !== 2 && ws.readyState !== 3)
+        console.log(
+          success("Established connection with " + ip + ` (${country})`)
+        );
+    });
 
   ws.on("message", (msg: string) => {
     const data = JSON.parse(msg);
