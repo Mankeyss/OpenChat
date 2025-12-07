@@ -1,5 +1,9 @@
 # OpenChat
 
+<p align="center">
+  <img alt="OpenChat" src="https://github.com/user-attachments/assets/346b8037-dcea-4935-96b4-0f1d72b529a1">
+</p>
+
 ### Installation
 
 1. Clone the repo
@@ -26,3 +30,34 @@
    npm link
    ```
    Now try running ```oc``` and it should work
+
+### Usage
+#### Set up profile with username and optional password
+```sh
+.setup
+```
+
+#### Retrieve a list of available commands
+```sh
+.help
+```
+
+#### Connect to a server
+```sh
+.connect <url>
+```
+
+#### List all available channels in connected server
+```sh
+.channels
+```
+
+#### List all active users in connected server
+```sh
+.users
+```
+
+#### Direct message a specific user
+```sh
+.dm <user>
+```
